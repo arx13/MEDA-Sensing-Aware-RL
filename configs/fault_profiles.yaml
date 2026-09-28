@@ -1,0 +1,68 @@
+# Sensing + fluidic fault profiles. Swept by experiments/ without code changes.
+# fluidic faults act on ground-truth MicroCell.health; sensing faults act ONLY on
+# reported readings, never on ground truth (architectural separation).
+profiles:
+  clean:
+    n_fluidic: 3
+    fluidic_mix: {dielectric_breakdown: 0.5, stuck_at: 0.3, charge_trapping: 0.2}
+    sensing_fault_density: 0.0
+    sensing_mix: {noise: 0.5, spoof: 0.2, dropout: 0.2, delay: 0.1}
+    sensing_noise_sigma: 0.05
+    sensing_drop_prob: 0.1
+    sensing_spoof_value: 1.0
+    sensing_lag_steps: 2
+    overlap_fraction: 0.0
+    seed: 0
+
+  sensing_low:
+    n_fluidic: 5
+    fluidic_mix: {dielectric_breakdown: 0.5, stuck_at: 0.3, charge_trapping: 0.2}
+    sensing_fault_density: 0.1
+    sensing_mix: {noise: 0.4, spoof: 0.3, dropout: 0.2, delay: 0.1}
+    sensing_noise_sigma: 0.05
+    sensing_drop_prob: 0.1
+    sensing_spoof_value: 1.0
+    sensing_lag_steps: 2
+    overlap_fraction: 0.2
+    seed: 1
+
+  sensing_medium:
+    n_fluidic: 8
+    fluidic_mix: {dielectric_breakdown: 0.5, stuck_at: 0.3, charge_trapping: 0.2}
+    sensing_fault_density: 0.25
+    sensing_mix: {noise: 0.35, spoof: 0.35, dropout: 0.15, delay: 0.15}
+    sensing_noise_sigma: 0.08
+    sensing_drop_prob: 0.15
+    sensing_spoof_value: 1.0
+    sensing_lag_steps: 2
+    overlap_fraction: 0.3
+    seed: 2
+
+  sensing_high:
+    n_fluidic: 10
+    fluidic_mix: {dielectric_breakdown: 0.5, stuck_at: 0.3, charge_trapping: 0.2}
+    sensing_fault_density: 0.5
+    sensing_mix: {noise: 0.3, spoof: 0.4, dropout: 0.15, delay: 0.15}
+    sensing_noise_sigma: 0.1
+    sensing_drop_prob: 0.2
+    sensing_spoof_value: 1.0
+    sensing_lag_steps: 2
+    overlap_fraction: 0.5
+    seed: 3
+
+  cooccurrence:
+    # Exp4: fluidic + sensing fault forced onto the SAME cells.
+    n_fluidic: 8
+    fluidic_mix: {dielectric_breakdown: 0.6, stuck_at: 0.4, charge_trapping: 0.0}
+    sensing_fault_density: 0.25
+    sensing_mix: {noise: 0.1, spoof: 0.8, dropout: 0.05, delay: 0.05}
+    sensing_noise_sigma: 0.05
+    sensing_drop_prob: 0.1
+    sensing_spoof_value: 1.0
+    sensing_lag_steps: 2
+    overlap_fraction: 1.0
+    seed: 4
+
+sweep:
+  # densities swept by exp2_sensing_fault_sweep.py
+  densities: [0.0, 0.05, 0.1, 0.2, 0.3, 0.4, 0.5]

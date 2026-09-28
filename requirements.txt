@@ -1,0 +1,11 @@
+numpy>=1.24
+gymnasium>=0.29
+torch>=2.0
+pyyaml>=6.0
+pandas>=2.0
+matplotlib>=3.7
+seaborn>=0.12
+pytest>=7.0
+tensorboard>=2.13
+# Optional: stable-baselines3 can substitute for the hand-rolled DQN in agents/
+stable-baselines3>=2.0

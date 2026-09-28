@@ -1,0 +1,24 @@
+# --- excluded from GitHub (kept locally) ---
+report/
+images/
+notebooks/
+results/
+__pycache__/
+*.pyc
+# --- regenerable outputs (kept locally, if dirs above were tracked) ---
+results/checkpoints/*.pt
+results/tensorboard/
+results/logs/
+results/*.csv
+results/*.png
+notebooks/.ipynb_checkpoints/
+# LaTeX build intermediates
+report/*.aux
+report/*.log
+report/*.bbl
+report/*.blg
+report/*.out
+report/*.toc
+report/*.fls
+report/*.fdb_latexmk
+report/*.synctex.gz

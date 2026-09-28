@@ -1,0 +1,42 @@
+# Shared DQN hyperparameters. Both agents use identical values except for
+# input channels (3 vs 4) so any gap is attributable to the confidence signal.
+defaults:
+  lr: 1.0e-3
+  gamma: 0.99
+  buffer_size: 20000
+  batch_size: 64
+  epsilon_start: 1.0
+  epsilon_end: 0.05
+  epsilon_decay_episodes: 800
+  target_update_every: 500       # gradient steps
+  train_start: 1000              # transitions before updates begin
+  hidden_dim: 256
+  seed: 0
+
+phases:
+  # Phase A: clean sensing sanity check (agents should reach parity)
+  clean_episodes: 1500
+  # Phase B: fixed sensing-fault rate so agents encounter failures during learning
+  faulty_episodes: 1500
+  faulty_profile: "sensing_medium"
+  # Phase 2 is TRAINING under faults, not fine-tuning: network weights transfer
+  # across the boundary, replay data does not (see clear_buffer_between_phases).
+  # Without clearing, phase B opens with a buffer full of clean-phase
+  # transitions (~20k capacity ~= several hundred faulty episodes to flush),
+  # diluting the faulted-phase signal behind the headline gap.
+  clear_buffer_between_phases: true
+  # In-training model selection: greedy probe cadence (0 disables).
+  # Best-by-success checkpoints are saved as {run}_best.pt; eval defaults to best.
+  eval_every: 250
+  # n=100 -> worst-case SE ~+-5pp on success rate (vs ~+-11pp at n=20).
+  # Probes are already paired across agents (identical eval seeds), so this
+  # purely damps lucky-checkpoint selection noise.
+  eval_episodes: 100
+
+eval:
+  episodes_per_condition: 200
+
+logging:
+  log_dir: "results/tensorboard"
+  checkpoint_dir: "results/checkpoints"
+  save_every_episodes: 500

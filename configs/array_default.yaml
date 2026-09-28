@@ -1,0 +1,43 @@
+# MEDA array + physics defaults.
+# Ranges grounded in MEDA literature (Elfar et al. 2023 and MEDA review papers):
+#   - array sizes studied typically 10x10 .. 32x32 MCs for routing benchmarks
+#   - MC pitch on the order of tens of um (device-dependent; routing logic is pitch-invariant)
+#   - MEDA actuation voltages in the tens of volts (cf. ~20-40 V operating range cited in reviews)
+#   - unit droplet occupies ~1 MC; assay droplets span 1-4x unit volume
+# Adjust these freely; routing/fault logic depends only on rows/cols/threshold, not absolutes.
+array:
+  rows: 10
+  cols: 10
+  mc_pitch_um: 50.0
+  dielectric_thickness_nm: 200.0
+
+actuation:
+  voltage_V: 28.0
+  voltage_min_V: 20.0
+  voltage_max_V: 40.0
+  health_threshold: 0.3        # below this, EWOD force insufficient -> move silently fails
+  allow_diagonals: true
+  wear_per_step: 0.01          # wear increment on every cell a droplet actuates/passes over
+
+droplet:
+  volume_unit: 1.0
+  volume_min: 0.5
+  volume_max: 4.0
+
+env:
+  obs_mode: "full"             # "full" | "local"
+  local_window: 5              # used only when obs_mode == "local"
+  max_steps: 100
+  reward_goal: 10.0
+  reward_step: -0.05
+  reward_stuck: -1.0           # penalty for attempting a move into a ground-truth dead cell
+  reward_suspect: -0.1         # penalty for stepping onto a low-confidence cell (aware agent only)
+  # Potential-based shaping (Ng et al., policy-invariant): F = gamma*Phi(post) - Phi(pre),
+  # Phi = -shaping_scale * Chebyshev(reported_pos, target). A function of the
+  # OBSERVATION, never ground truth. discount must match the agent's gamma.
+  reward_shaping_scale: 0.2
+  discount: 0.99
+  confidence_threshold: 0.5    # below this a cell counts as "suspect" for reward_suspect
+  sensing_lag_steps: 2
+  sensing_window: 5            # rolling residual window for confidence tracker
+  seed: 0
