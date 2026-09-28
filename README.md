@@ -34,20 +34,67 @@ python experiments/exp2_sensing_fault_sweep.py       # headline figure
 > (1500 clean + 1500 faulty episodes per agent). The flags above are smoke-test
 > sized.
 
-## Layout
+## Repo contents (what's on GitHub)
 
-- `meda_env/` — array, droplet, actuation (8-dir), `fault_injection/` (fluidic
-  vs sensing **decoupled**), `sensing/` (capacitive model + confidence tracker),
-  `gym_env.py` (Gymnasium wrapper), `renderer.py`.
-- `agents/` — matched-capacity DQNs: `baseline_dqn` (3ch, no confidence),
-  `confidence_aware_dqn` (4ch, +confidence). Shared `dqn.py` implementation.
-- `training/` — `train_baseline.py`, `train_confidence_aware.py`, shared loop.
-- `evaluation/` — `run_eval.py`, `metrics.py` (success, degradation,
-  false-trust, latency overhead), `plots.py`.
-- `experiments/` — exp1 parity, exp2 fault sweep, exp3 confidence ablation,
-  exp4 co-occurrence.
-- `configs/` — array/physics, fault profiles, training hyperparams. Phase-6
-  sweeps are config-only.
+`REPORT.pdf` is the compiled interim report. Everything else below is code;
+run-generated outputs (`results/`, checkpoints) are git-ignored and rebuilt
+via the Quickstart.
+
+```
+meda-sensing-aware-rl/
+├── README.md                     # this file: claim, quickstart, physics notes
+├── REPORT.pdf                    # compiled interim report (Abstract → Bibliography)
+├── requirements.txt              # numpy, gymnasium, torch, pyyaml, pandas,
+│                                 # matplotlib, seaborn, pytest, tensorboard (+ optional SB3)
+├── .gitignore                    # excludes checkpoints, TB logs, pycache, report sources
+├── configs/
+│   ├── array_default.yaml        # grid size, actuation threshold/wear, droplet volume,
+│   │                             # rewards (+10/-0.05/-1.0/-0.1), PBRS shaping (k=0.2), windows
+│   ├── fault_profiles.yaml       # clean/low/medium/high/co-occurrence profiles + 0–50% sweep
+│   └── training_baseline.yaml    # shared DQN hyperparams, phase budgets, eval cadence,
+│                                 # buffer-clear flag, best-checkpoint selection
+├── meda_env/                     # fully digital simulator
+│   ├── array.py                  # MicroCell grid: ground-truth health/wear/fault/occupancy
+│   ├── droplet.py                # droplet position, volume, target
+│   ├── actuation.py              # 8-directional moves (Discrete(8)); silent-fail on dead cells
+│   ├── gym_env.py                # Gymnasium wrapper: reported-position obs (3ch/4ch),
+│   │                             # PBRS shaping, confidence gating, per-episode RNG seeding
+│   ├── renderer.py               # matplotlib debug view (truth vs reported vs confidence)
+│   ├── fault_injection/
+│   │   ├── fluidic_faults.py     # breakdown / stuck-at / charge-trapping (ground truth only)
+│   │   ├── sensing_faults.py     # noise / spoof / dropout / delay (reported readings only)
+│   │   └── fault_scheduler.py    # per-episode fault sets; exact fluidic↔sensing overlap
+│   └── sensing/
+│       ├── capacitive_model.py   # ground truth → reported health grid + reported position
+│       └── confidence_signal.py  # residual-based reliability score, rolling window
+├── agents/                       # one shared Double-DQN class (Huber loss); hyperparams identical
+│   ├── dqn.py                    # replay buffer, epsilon-greedy, target net, save/load
+│   ├── networks.py               # CNN encoder + MLP head (MLP fallback included)
+│   ├── baseline_dqn.py           # trusts sensing map: 3ch obs, no confidence
+│   └── confidence_aware_dqn.py   # learns trust: 4ch obs, +confidence signal
+├── training/
+│   ├── common.py                 # shared loop: rollout → replay → updates; greedy probes;
+│   │                             # continuous epsilon via start_episode; best-checkpoint saving
+│   ├── callbacks.py              # TensorBoard logging helper
+│   ├── train_baseline.py         # phase A (clean) → buffer-clear → phase B (faulty), baseline
+│   └── train_confidence_aware.py # same curriculum, confidence-aware agent
+├── evaluation/
+│   ├── run_eval.py               # greedy rollouts per fault profile → summary CSV;
+│   │                             # fail-closed checkpoints; warmed-up decision latency
+│   ├── metrics.py                # success, degradation, false-trust, steps, latency
+│   └── plots.py                  # degradation curves, false-trust bars
+├── experiments/
+│   ├── exp1_clean_sensing.py         # parity check: both agents ~equal on clean sensing
+│   ├── exp2_sensing_fault_sweep.py   # HEADLINE: success vs fault density 0–50%
+│   ├── exp3_ablation_confidence_weight.py  # zero confidence at test time (reliance check)
+│   └── exp4_multi_fault_cooccurrence.py    # fluidic+sensing fault on same cell
+└── tests/                        # 36 tests: array legality, fault separation, env rewards,
+    ├── test_array.py             #   reported-position obs, RNG lockstep, tracker gating,
+    ├── test_fault_injection.py   #   exact overlap, epsilon continuity, best-ckpt, fail-closed
+    ├── test_env.py
+    ├── test_sensing_aware.py
+    └── test_training.py
+```
 
 ## Physics grounding
 
@@ -62,9 +109,8 @@ cumulative, monotonic wear that can progress into dielectric breakdown.
   modelling insufficient EWOD force — not a crash.
 - `stable-baselines3` is listed as optional; the default agents are hand-rolled
   PyTorch DQNs so results reproduce without it.
-```
 
-## Results
+## Results (local only, not on GitHub)
 
 `results/` holds checkpoints, CSVs, and figures generated by training,
 `evaluation/run_eval.py`, and `experiments/exp*.py` (git-ignored except `.gitkeep`).
