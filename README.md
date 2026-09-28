@@ -43,7 +43,7 @@ via the Quickstart.
 ```
 meda-sensing-aware-rl/
 ├── README.md                     # this file: claim, quickstart, physics notes
-├── REPORT.pdf                    # compiled interim report (Abstract → Bibliography)
+├── REPORT.pdf                    # compiled interim report
 ├── requirements.txt              # numpy, gymnasium, torch, pyyaml, pandas,
 │                                 # matplotlib, seaborn, pytest, tensorboard (+ optional SB3)
 ├── .gitignore                    # excludes checkpoints, TB logs, pycache, report sources
